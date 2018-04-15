@@ -1,0 +1,11 @@
+---
+ - hosts: 192.168.11.131
+   remote_user: root
+   tasks:
+    - name: installig httpd
+      yum : name=httpd state=present
+    - name: copy index.html
+      copy: src=index.html dest=/var/www/html
+    - name: start httpd service
+      service: name=httpd state=started
+
