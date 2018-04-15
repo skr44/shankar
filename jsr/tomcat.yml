@@ -1,0 +1,28 @@
+---
+ - hosts: server1
+   remote_user: shankar
+   become: yes
+
+   tasks:
+   - name: install java:1.7
+     yum: name=java-1.7.0-openjdk state=present
+   - name: install tomcat server
+     yum: name=tomcat state=present
+   - name: add group "tomcat"
+     group: name=tomcat
+   - name: add user "tomcat"
+     user: name=tomcat group=tomcat home=/root/shankar/tomcat createhome=no
+     become: true
+     become_method: sudo
+   - name: symlink install directory
+     file: src=/opt/apache-tomcat-7.0.61 path=/root/shankar/tomcat state=link
+   - name: configure tomcat server
+     template: src=server.xml dest=/root/shankar/tomcat/conf/
+     notify: restart tomcat
+   - name: configure tomcat users
+     template: src=tomcat-users.xml dest=/root/shankar/tomcat/conf/
+     notify: restart tomcat
+   - name: start tomcat
+     service: name=tomcat state=started enabled=yes
+   - name: insert firewalld rule for tomcat http port
+     firewalld: port=8080 state=enabled
